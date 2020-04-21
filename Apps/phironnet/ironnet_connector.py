@@ -319,6 +319,32 @@ class IronnetConnector(BaseConnector):
             self.debug_print("Reporting bad activity to IronDefense failed. Error: {}".format(action_result.get_message()))
             return action_result.set_status(phantom.APP_ERROR, "Reporting bad activity to IronDefense failed. Error: {}".format(action_result.get_message()))
 
+    def _handle_irondefense_get_alert_irondome_info(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        self.save_progress("Received param: {0}".format(param))
+
+        # Access action parameters passed in the 'param' dictionary
+        request = {
+            'alert_id': param['alert_id']
+        }
+
+        # make rest call
+        ret_val, response = self._make_post('/GetAlertIronDomeInformation', action_result, data=request, headers=None)
+
+        # Add the response into the data section
+        action_result.add_data(response)
+
+        if phantom.is_success(ret_val):
+            self.debug_print("Retrieving IronDome alert info was successful")
+            return action_result.set_status(phantom.APP_SUCCESS, "Retrieving IronDome alert info was successful")
+        else:
+            self.debug_print("Retrieving IronDome alert info failed. Error: {}".format(action_result.get_message()))
+            return action_result.set_status(phantom.APP_ERROR, "Retrieving IronDome alert info failed. Error: {}".format(action_result.get_message()))
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -337,6 +363,8 @@ class IronnetConnector(BaseConnector):
             ret_val = self._handle_irondefense_comment_on_alert(param)
         elif action_id == 'irondefense_report_observed_bad_activity':
             ret_val = self._handle_irondefense_report_observed_bad_activity(param)
+        elif action_id == 'irondefense_get_alert_irondome_info':
+            ret_val = self._handle_irondefense_get_alert_irondome_info(param)
 
         return ret_val
 
