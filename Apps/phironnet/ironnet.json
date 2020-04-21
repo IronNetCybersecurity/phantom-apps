@@ -510,6 +510,407 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "get irondome info",
+            "identifier": "irondefense_get_alert_irondome_info",
+            "description": "Gets IronDome information related to an IronDefense alert",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "alert_id": {
+                    "description": "The ID of the IronDefense alert",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": true,
+                    "contains": [
+                        "irondefense alert id"
+                    ],
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 0,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.alert_id",
+                    "data_type": "string",
+                    "column_name": "Alert ID",
+                    "column_order": 1,
+                    "contains": [
+                        "irondefense alert id"
+                    ],
+                    "example_values": [
+                        "0c740a2c-a566-4c95-a8be-5f48082de2b2"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.cognitive_system_score",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.community_comments.*.comment",
+                    "data_type": "string",
+                    "example_values": [
+                        "example community comment"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.community_comments.*.self",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.community_comments.*.created",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.community_comments.*.dome_tags",
+                    "data_type": "string",
+                    "example_values": [
+                        "example-tag"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.community_comments.*.enterprise",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlations.*.correlations.*.enterprise_correlations",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlations.*.correlations.*.ip",
+                    "data_type": "string",
+                    "example_values": [
+                        "1.2.3.4"
+                    ],
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlations.*.correlations.*.domain",
+                    "data_type": "string",
+                    "example_values": [
+                        "example.com"
+                    ],
+                    "contains": [
+                        "domain"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlations.*.correlations.*.community_correlations",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlations.*.dome_tag",
+                    "data_type": "string",
+                    "example_values": [
+                        "example-tag"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dome_notifications.*.category",
+                    "data_type": "string",
+                    "example_values": [
+                        "DNC_PARTICIPANT_ADDED"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dome_notifications.*.alert_ids",
+                    "data_type": "string",
+                    "example_values": [
+                        "c60c4168-3fe8-4a6d-b0d1-4977673c98fd"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dome_notifications.*.id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        123456
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dome_notifications.*.dome_tags",
+                    "data_type": "string",
+                    "example_values": [
+                        "example-tag"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.dome_notifications.*.created",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.malicious_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.benign_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.resource_owner",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.activity_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.comments_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.whitelisted_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.suspicious_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.first_seen",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip.last_seen",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.malicious_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.benign_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.resource_owner",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.activity_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.comments_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.whitelisted_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.suspicious_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.first_seen",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain.last_seen",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.malicious_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.benign_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.resource_owner",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.activity_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.comments_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.whitelisted_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.suspicious_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.first_seen",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior.last_seen",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.domain",
+                    "data_type": "string",
+                    "contains": [
+                        "domain"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.ip",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.behavior",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.correlation_participation.*.dome_tag",
+                    "data_type": "string",
+                    "example_values": [
+                        "example-tag"
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ]
 }
