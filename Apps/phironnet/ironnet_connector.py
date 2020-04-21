@@ -62,6 +62,12 @@ class IronnetConnector(BaseConnector):
         self._username = None
         self._password = None
         self._verify_server_cert = None
+        self._enable_alert_notifications = None
+        self._alert_categories = None
+        self._alert_subcategories = None
+        self._alert_severity_lower = None
+        self._alert_severity_upper = None
+        self._alert_limit = None
 
     def _process_empty_response(self, response, action_result):
 
@@ -345,6 +351,51 @@ class IronnetConnector(BaseConnector):
             self.debug_print("Retrieving IronDome alert info failed. Error: {}".format(action_result.get_message()))
             return action_result.set_status(phantom.APP_ERROR, "Retrieving IronDome alert info failed. Error: {}".format(action_result.get_message()))
 
+    def _handle_irondefense_get_alert_notifications(self):
+            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+            # Add an action result object to self (BaseConnector) to represent the action for this param
+            action_result = self.add_action_result(ActionResult(dict()))
+
+            request = {
+                'limit': self._alert_limit
+            }
+            alert_cats = self._alert_categories
+            alert_subcats = self._alert_subcategories
+            alert_sev_lower = self._alert_severity_lower
+            alert_sev_upper = self._alert_severity_upper
+
+            # make rest call
+            ret_val, response = self._make_post('/GetAlertNotifications', action_result, data=request, headers=None)
+            if phantom.is_success(ret_val):
+                self.save_progress("Fetching alert notifications was successful")
+                # Filter the response and add into the data section
+                for alert_notification in response['alert_notifications']:
+                    if alert_notification['alert']:
+                        alert = alert_notification['alert']
+                        if alert['category'] not in alert_cats and alert['sub_category'] not in alert_subcats:
+                            if alert_sev_lower <= int(alert['severity']) <= alert_sev_upper:
+                                contnr = {
+                                    'name': str(alert["id"]) + ' Alert Notification',
+                                    'description': "Ingested {} Alert Notification occurring at {}.".
+                                    format(alert_notification["alert_action"], str(alert["updated"])),
+                                    'source_data_identifier': str(alert['id']) + '_' + str(alert['event_count']),
+                                    'data': alert
+                                }
+                                status, msg, container_id_ = self.save_container(contnr)
+
+                                if status == phantom.APP_ERROR:
+                                    self.debug_print("Failed to store: {}".format(msg))
+                                    self.debug_print("Failed with status: {}".format(status))
+                                    action_result.set_status(phantom.APP_ERROR, 'Container creation failed: {}'.format(msg))
+                                    return status
+                self.save_progress("Filtering alert notifications was successful")
+                return action_result.set_status(phantom.APP_SUCCESS)
+            else:
+                self.debug_print(action_result.get_message())
+                self.save_progress("Fetching alert notifications failed")
+                return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -363,8 +414,16 @@ class IronnetConnector(BaseConnector):
             ret_val = self._handle_irondefense_comment_on_alert(param)
         elif action_id == 'irondefense_report_observed_bad_activity':
             ret_val = self._handle_irondefense_report_observed_bad_activity(param)
+<<<<<<< HEAD
         elif action_id == 'irondefense_get_alert_irondome_info':
             ret_val = self._handle_irondefense_get_alert_irondome_info(param)
+=======
+        elif action_id == 'on_poll':
+            if self._enable_alert_notifications:
+                ret_val = self._handle_irondefense_get_alert_notifications()
+            else:
+                self.save_progress("Fetching alert notifications is disabled")
+>>>>>>> ECO:340- adding GetAlertNotifications
 
         return ret_val
 
@@ -380,6 +439,26 @@ class IronnetConnector(BaseConnector):
         self._username = config.get('username')
         self._password = config.get('password')
         self._verify_server_cert = config.get('verify_server_cert')
+
+        # Alert Notification Configs
+        self._enable_alert_notifications = config.get('enable_alert_notifications')
+        alert_cats = config.get('alert_categories')
+        if alert_cats:
+            self._alert_categories = [str(cat).replace(" ", "_").upper() for cat in alert_cats.split(',')]
+        else:
+            self._alert_categories = []
+        alert_subcats = config.get('alert_subcategories')
+        if alert_subcats:
+            self._alert_subcategories = [str(subcat).replace(" ", "_").upper() for subcat in alert_subcats.split(',')]
+        else:
+            self._alert_subcategories = []
+        self._alert_severity_lower = int(config.get('alert_severity_lower'))
+        self._alert_severity_upper = int(config.get('alert_severity_upper'))
+        if self._alert_severity_lower >= self._alert_severity_upper:
+            self.save_progress("Initialization Failed: Invalid Range for Alert Severity- {} is not lower than {}"
+                    .format(self._alert_severity_lower, self._alert_severity_upper))
+            return phantom.APP_ERROR
+        self._alert_limit = int(config.get('alert_limit'))
 
         return phantom.APP_SUCCESS
 

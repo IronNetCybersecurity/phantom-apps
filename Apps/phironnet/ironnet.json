@@ -41,6 +41,48 @@
             "data_type": "password",
             "required": true,
             "order": 3
+        },
+        "enable_alert_notifications": {
+            "description": "Enable Alert Notifications",
+            "data_type": "boolean",
+            "required": false,
+            "default": true,
+            "order": 10
+        },
+        "alert_categories": {
+            "description": "Alert Categories to Exclude (enter in CSV format)",
+            "data_type": "string",
+            "required": false,
+            "default": "",
+            "order": 5
+        },
+        "alert_subcategories": {
+            "description": "Alert SubCategories to Exclude (enter in CSV format)",
+            "data_type": "string",
+            "required": false,
+            "default": "",
+            "order": 6
+        },
+        "alert_severity_lower": {
+            "description": "Minimum Severity of Alerts",
+            "data_type": "numeric",
+            "required": false,
+            "default": 0,
+            "order": 7
+        },
+        "alert_severity_upper": {
+            "description": "Maximum Severity of Alerts",
+            "data_type": "numeric",
+            "required": false,
+            "default": 1000,
+            "order": 8
+        },
+        "alert_limit": {
+            "description": "Limit of Alert Notifications to pull at a time",
+            "data_type": "numeric",
+            "required": false,
+            "default": 500,
+            "order": 9
         }
     },
     "actions": [
@@ -907,6 +949,19 @@
                     ]
                 }
             ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "on poll",
+            "identifier": "on_poll",
+            "description": "Ingests Configured Notifications from IronDefense into Phantom",
+            "type": "ingest",
+            "read_only": true,
+            "parameters": {},
+            "output": [],
             "render": {
                 "type": "table"
             },
