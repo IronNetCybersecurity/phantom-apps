@@ -47,42 +47,49 @@
             "data_type": "boolean",
             "required": false,
             "default": true,
-            "order": 10
+            "order": 4
+        },
+        "alert_notif_actions": {
+            "description": "Alert Notification Actions to Include (enter in CSV format)",
+            "data_type": "string",
+            "required": false,
+            "default": "Alert Created",
+            "order": 5
         },
         "alert_categories": {
             "description": "Alert Categories to Exclude (enter in CSV format)",
             "data_type": "string",
             "required": false,
             "default": "",
-            "order": 5
+            "order": 66
         },
         "alert_subcategories": {
             "description": "Alert SubCategories to Exclude (enter in CSV format)",
             "data_type": "string",
             "required": false,
             "default": "",
-            "order": 6
+            "order": 7
         },
         "alert_severity_lower": {
             "description": "Minimum Severity of Alerts",
             "data_type": "numeric",
             "required": false,
-            "default": 0,
-            "order": 7
+            "default": 500,
+            "order": 8
         },
         "alert_severity_upper": {
             "description": "Maximum Severity of Alerts",
             "data_type": "numeric",
             "required": false,
             "default": 1000,
-            "order": 8
+            "order": 9
         },
         "alert_limit": {
             "description": "Limit of Alert Notifications to pull at a time",
             "data_type": "numeric",
             "required": false,
             "default": 500,
-            "order": 9
+            "order": 10
         }
     },
     "actions": [
