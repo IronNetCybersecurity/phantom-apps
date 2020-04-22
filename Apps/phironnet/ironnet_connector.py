@@ -373,7 +373,7 @@ class IronnetConnector(BaseConnector):
                         if alert['category'] not in self._alert_categories and alert['sub_category'] not in self._alert_subcategories:
                             if self._alert_severity_lower <= int(alert['severity']) <= self._alert_severity_upper:
                                 # create container
-                                contnr = {
+                                container = {
                                     'name': alert['id'],
                                     'kill_chain': alert['category'],
                                     'description': "IronDefense {}/{} alert".
@@ -381,30 +381,27 @@ class IronnetConnector(BaseConnector):
                                     'source_data_identifier': alert['id'],
                                     'data': alert,
                                 }
-                                contnr_status, contnr_msg, contnr_id = self.save_container(contnr)
+                                container_status, container_msg, container_id = self.save_container(container)
+                                if container_status == phantom.APP_ERROR:
+                                    self.debug_print("Failed to store: {}".format(container_msg))
+                                    self.debug_print("Failed with status: {}".format(container_status))
+                                    action_result.set_status(phantom.APP_ERROR, 'Container creation failed: {}'.format(container_msg))
+                                    return container_status
 
-                                if contnr_status == phantom.APP_ERROR:
-                                    self.debug_print("Failed to store: {}".format(contnr_msg))
-                                    self.debug_print("Failed with status: {}".format(contnr_status))
-                                    action_result.set_status(phantom.APP_ERROR, 'Container creation failed: {}'.format(contnr_msg))
-                                    return contnr_status
                                 # add notification as artifact of container
-                                art = {
+                                artifact = {
                                     'data': alert_notification,
-                                    'name': alert_notification['alert_action'][4:].replace("_", " ") + " ALERT NOTIFICATION",
-                                    'container_id': contnr_id,
-                                    'source_data_identifier': alert['id'] + '-' + alert["updated"],
+                                    'name': "{} ALERT NOTIFICATION".format(alert_notification['alert_action'][4:].replace("_", " ")),
+                                    'container_id': container_id,
+                                    'source_data_identifier': "{}-{}".format(alert['id'], alert["updated"]),
                                     'start_time': alert['updated']
                                 }
-                                self.save_progress("Artifact: {}".format(art))
-                                art_status, art_msg, art_id = self.save_artifact(art)
-                                if art_status == phantom.APP_ERROR:
-                                    self.save_progress('PROGRESS:')
-                                    self.save_progress('MESSAGE:{}'.format(art_msg))
-                                    self.debug_print("Failed to store: {}".format(art_msg))
-                                    self.debug_print("Failed with status: {}".format(art_status))
-                                    action_result.set_status(phantom.APP_ERROR, 'Artifact creation failed: {}'.format(art_msg))
-                                    return art_status
+                                artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
+                                if artifact_status == phantom.APP_ERROR:
+                                    self.debug_print("Failed to store: {}".format(artifact_msg))
+                                    self.debug_print("Failed with status: {}".format(artifact_status))
+                                    action_result.set_status(phantom.APP_ERROR, 'Artifact creation failed: {}'.format(artifact_msg))
+                                    return artifact_status
 
                 self.save_progress("Filtering alert notifications was successful")
                 return action_result.set_status(phantom.APP_SUCCESS)
@@ -458,17 +455,17 @@ class IronnetConnector(BaseConnector):
         self._enable_alert_notifications = config.get('enable_alert_notifications')
         alert_acts = config.get('alert_notif_actions')
         if alert_acts:
-            self._alert_notif_actions = ["ANA_" + str(act).replace(" ", "_").upper() for act in alert_acts.split(',')]
+            self._alert_notif_actions = ["ANA_" + str(act).strip().replace(" ", "_").upper() for act in alert_acts.split(',')]
         else:
             self._alert_notif_actions = ["ANA_ALERT_CREATED"]
         alert_cats = config.get('alert_categories')
         if alert_cats:
-            self._alert_categories = [str(cat).replace(" ", "_").upper() for cat in alert_cats.split(',')]
+            self._alert_categories = [str(cat).strip().replace(" ", "_").upper() for cat in alert_cats.split(',')]
         else:
             self._alert_categories = []
         alert_subcats = config.get('alert_subcategories')
         if alert_subcats:
-            self._alert_subcategories = [str(subcat).replace(" ", "_").upper() for subcat in alert_subcats.split(',')]
+            self._alert_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in alert_subcats.split(',')]
         else:
             self._alert_subcategories = []
         self._alert_severity_lower = int(config.get('alert_severity_lower'))
@@ -486,29 +483,6 @@ class IronnetConnector(BaseConnector):
         # Save the state, this data is saved across actions and app upgrades
         self.save_state(self._state)
         return phantom.APP_SUCCESS
-
-    def _get_container_id(self, source_id):
-
-        url = '{0}rest/container?_filter_source_data_identifier="{1}"&_filter_asset={2}'.format(self.get_phantom_base_url(), source_id, self.get_asset_id())
-
-        try:
-            r = requests.get(url, verify=False)
-            resp_json = r.json()
-        except Exception as e:
-            self.debug_print("Unable to query containers: ", e)
-            return None
-
-        if (resp_json.get('count', 0) <= 0):
-            self.debug_print("No container matched")
-            return -1
-
-        try:
-            container_id = resp_json.get('data', [])[0]['id']
-        except Exception as e:
-            self.debug_print("Container results are not proper: ", e)
-            return None
-
-        return container_id
 
 
 if __name__ == '__main__':
