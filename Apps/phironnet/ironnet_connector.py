@@ -69,6 +69,9 @@ class IronnetConnector(BaseConnector):
         self._alert_severity_lower = None
         self._alert_severity_upper = None
         self._alert_limit = None
+        self._enable_dome_notifications = None
+        self._dome_categories = None
+        self._dome_limit = None
 
     def _process_empty_response(self, response, action_result):
 
@@ -366,7 +369,7 @@ class IronnetConnector(BaseConnector):
             ret_val, response = self._make_post('/GetAlertNotifications', action_result, data=request, headers=None)
             if phantom.is_success(ret_val):
                 self.save_progress("Fetching alert notifications was successful")
-                # Filter the response and add into the data section
+                # Filter the response
                 for alert_notification in response['alert_notifications']:
                     if alert_notification['alert_action'] in self._alert_notif_actions and alert_notification['alert']:
                         alert = alert_notification['alert']
@@ -385,7 +388,7 @@ class IronnetConnector(BaseConnector):
                                 if container_status == phantom.APP_ERROR:
                                     self.debug_print("Failed to store: {}".format(container_msg))
                                     self.debug_print("Failed with status: {}".format(container_status))
-                                    action_result.set_status(phantom.APP_ERROR, 'Container creation failed: {}'.format(container_msg))
+                                    action_result.set_status(phantom.APP_ERROR, 'Alert Notification container creation failed: {}'.format(container_msg))
                                     return container_status
 
                                 # add notification as artifact of container
@@ -400,7 +403,7 @@ class IronnetConnector(BaseConnector):
                                 if artifact_status == phantom.APP_ERROR:
                                     self.debug_print("Failed to store: {}".format(artifact_msg))
                                     self.debug_print("Failed with status: {}".format(artifact_status))
-                                    action_result.set_status(phantom.APP_ERROR, 'Artifact creation failed: {}'.format(artifact_msg))
+                                    action_result.set_status(phantom.APP_ERROR, 'Alert Notification artifact creation failed: {}'.format(artifact_msg))
                                     return artifact_status
 
                 self.save_progress("Filtering alert notifications was successful")
@@ -408,6 +411,58 @@ class IronnetConnector(BaseConnector):
             else:
                 self.debug_print(action_result.get_message())
                 self.save_progress("Fetching alert notifications failed")
+                return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
+
+    def _handle_irondefense_get_dome_notifications(self):
+            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+            # Add an action result object to self (BaseConnector) to represent the action for this param
+            action_result = self.add_action_result(ActionResult(dict()))
+
+            request = {
+                'limit': self._dome_limit
+            }
+
+            # make rest call
+            ret_val, response = self._make_post('/GetDomeNotifications', action_result, data=request, headers=None)
+            if phantom.is_success(ret_val):
+                self.save_progress("Fetching dome notifications was successful")
+                # Filter the response
+                for dome_notification in response['dome_notifications']:
+                    if dome_notification['category'] not in self._dome_categories:
+                        for alert_id in dome_notification['alert_ids']:
+                            # create or find container
+                            container = {
+                                'name': alert_id,
+                                'source_data_identifier': alert_id,
+                            }
+                            container_status, container_msg, container_id = self.save_container(container)
+                            if container_status == phantom.APP_ERROR:
+                                self.debug_print("Failed to store: {}".format(container_msg))
+                                self.debug_print("Failed with status: {}".format(container_status))
+                                action_result.set_status(phantom.APP_ERROR, 'Dome Notification container creation failed: {}'.format(container_msg))
+                                return container_status
+
+                            # add notification as artifact of container
+                            artifact = {
+                                'data': dome_notification,
+                                'name': "{} DOME NOTIFICATION".format(dome_notification['category'][4:].replace("_", " ")),
+                                'container_id': container_id,
+                                'source_data_identifier': "{}".format(dome_notification["id"]),
+                                'start_time': dome_notification['created']
+                            }
+                            artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
+                            if artifact_status == phantom.APP_ERROR:
+                                self.debug_print("Failed to store: {}".format(artifact_msg))
+                                self.debug_print("Failed with status: {}".format(artifact_status))
+                                action_result.set_status(phantom.APP_ERROR, 'Dome Notification artifact creation failed: {}'.format(artifact_msg))
+                                return artifact_status
+
+                self.save_progress("Filtering dome notifications was successful")
+                return action_result.set_status(phantom.APP_SUCCESS)
+            else:
+                self.debug_print(action_result.get_message())
+                self.save_progress("Fetching dome notifications failed")
                 return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
 
     def handle_action(self, param):
@@ -431,10 +486,17 @@ class IronnetConnector(BaseConnector):
         elif action_id == 'irondefense_get_alert_irondome_info':
             ret_val = self._handle_irondefense_get_alert_irondome_info(param)
         elif action_id == 'on_poll':
+            alert_ret_val = phantom.APP_SUCCESS
+            dome_ret_val = phantom.APP_SUCCESS
             if self._enable_alert_notifications:
-                ret_val = self._handle_irondefense_get_alert_notifications()
+                alert_ret_val = self._handle_irondefense_get_alert_notifications()
             else:
                 self.save_progress("Fetching alert notifications is disabled")
+            if self._enable_dome_notifications:
+                dome_ret_val = self._handle_irondefense_get_dome_notifications()
+            else:
+                self.save_progress("Fetching dome notifications is disabled")
+            ret_val = alert_ret_val and dome_ret_val
 
         return ret_val
 
@@ -475,6 +537,15 @@ class IronnetConnector(BaseConnector):
                     .format(self._alert_severity_lower, self._alert_severity_upper))
             return phantom.APP_ERROR
         self._alert_limit = int(config.get('alert_limit'))
+
+        # Dome Notification Configs
+        self._enable_dome_notifications = config.get('enable_dome_notifications')
+        dome_cats = config.get('dome_categories')
+        if dome_cats:
+            self._dome_categories = ["DNC_{}".format(str(cat).strip().replace(" ", "_").upper()) for cat in dome_cats.split(',')]
+        else:
+            self._dome_categories = []
+        self._dome_limit = int(config.get('dome_limit'))
 
         return phantom.APP_SUCCESS
 

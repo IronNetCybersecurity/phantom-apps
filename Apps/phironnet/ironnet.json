@@ -90,6 +90,27 @@
             "required": false,
             "default": 500,
             "order": 10
+        },
+        "enable_dome_notifications": {
+            "description": "Ingest IronDefense Dome Notifications into Phantom",
+            "data_type": "boolean",
+            "required": false,
+            "default": false,
+            "order": 11
+        },
+        "dome_categories": {
+            "description": "Dome Categories to exclude from ingest (if ingest is enabled).  Enter in CSV format.",
+            "data_type": "string",
+            "required": false,
+            "default": "",
+            "order": 12
+        },
+        "dome_limit": {
+            "description": "Limit of Dome Notifications to ingest at a time (if ingest is enabled)",
+            "data_type": "numeric",
+            "required": false,
+            "default": 500,
+            "order": 13
         }
     },
     "actions": [
