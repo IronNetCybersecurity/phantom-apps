@@ -72,6 +72,13 @@ class IronnetConnector(BaseConnector):
         self._enable_dome_notifications = None
         self._dome_categories = None
         self._dome_limit = None
+        self._enable_event_notifications = None
+        self._alert_event_actions = None
+        self._event_categories = None
+        self._event_subcategories = None
+        self._event_severity_lower = None
+        self._event_severity_upper = None
+        self._event_limit = None
 
     def _process_empty_response(self, response, action_result):
 
@@ -465,6 +472,64 @@ class IronnetConnector(BaseConnector):
                 self.save_progress("Fetching dome notifications failed")
                 return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
 
+    def _handle_irondefense_get_event_notifications(self):
+            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+            # Add an action result object to self (BaseConnector) to represent the action for this param
+            action_result = self.add_action_result(ActionResult(dict()))
+
+            request = {
+                'limit': self._event_limit
+            }
+
+            # make rest call
+            ret_val, response = self._make_post('/GetEventNotifications', action_result, data=request, headers=None)
+            if phantom.is_success(ret_val):
+                self.save_progress("Fetching event notifications was successful")
+                # Filter the response
+                for event_notification in response['event_notifications']:
+                    if event_notification['event_action'] in self._event_notif_actions and event_notification['event']:
+                        event = event_notification['event']
+                        if event['category'] not in self._event_categories and event['sub_category'] not in self._event_subcategories:
+                            if self._event_severity_lower <= int(event['severity']) <= self._event_severity_upper:
+                                # create container
+                                container = {
+                                    'name': event['id'],
+                                    'kill_chain': event['category'],
+                                    'description': "IronDefense {}/{} event".
+                                    format(event['category'], event['sub_category']),
+                                    'source_data_identifier': event['id'],
+                                    'data': event,
+                                }
+                                container_status, container_msg, container_id = self.save_container(container)
+                                if container_status == phantom.APP_ERROR:
+                                    self.debug_print("Failed to store: {}".format(container_msg))
+                                    self.debug_print("Failed with status: {}".format(container_status))
+                                    action_result.set_status(phantom.APP_ERROR, 'Event Notification container creation failed: {}'.format(container_msg))
+                                    return container_status
+
+                                # add notification as artifact of container
+                                artifact = {
+                                    'data': event_notification,
+                                    'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
+                                    'container_id': container_id,
+                                    'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
+                                    'start_time': event['updated']
+                                }
+                                artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
+                                if artifact_status == phantom.APP_ERROR:
+                                    self.debug_print("Failed to store: {}".format(artifact_msg))
+                                    self.debug_print("Failed with status: {}".format(artifact_status))
+                                    action_result.set_status(phantom.APP_ERROR, 'Event Notification artifact creation failed: {}'.format(artifact_msg))
+                                    return artifact_status
+
+                self.save_progress("Filtering event notifications was successful")
+                return action_result.set_status(phantom.APP_SUCCESS)
+            else:
+                self.debug_print(action_result.get_message())
+                self.save_progress("Fetching event notifications failed")
+                return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -488,6 +553,8 @@ class IronnetConnector(BaseConnector):
         elif action_id == 'on_poll':
             alert_ret_val = phantom.APP_SUCCESS
             dome_ret_val = phantom.APP_SUCCESS
+            event_ret_val = phantom.APP_SUCCESS
+
             if self._enable_alert_notifications:
                 alert_ret_val = self._handle_irondefense_get_alert_notifications()
             else:
@@ -496,7 +563,11 @@ class IronnetConnector(BaseConnector):
                 dome_ret_val = self._handle_irondefense_get_dome_notifications()
             else:
                 self.save_progress("Fetching dome notifications is disabled")
-            ret_val = alert_ret_val and dome_ret_val
+            if self._enable_event_notifications:
+                event_ret_val = self._handle_irondefense_get_event_notifications()
+            else:
+                self.save_progress("Fetching event notifications is disabled")
+            ret_val = alert_ret_val and dome_ret_val and event_ret_val
 
         return ret_val
 
@@ -546,6 +617,31 @@ class IronnetConnector(BaseConnector):
         else:
             self._dome_categories = []
         self._dome_limit = int(config.get('dome_limit'))
+
+        # Event Notification Configs
+        self._enable_event_notifications = config.get('enable_event_notifications')
+        event_acts = config.get('event_notif_actions')
+        if event_acts:
+            self._event_notif_actions = ["ENA_" + str(act).strip().replace(" ", "_").upper() for act in event_acts.split(',')]
+        else:
+            self._event_notif_actions = ["ENA_EVENT_CREATED"]
+        event_cats = config.get('event_categories')
+        if event_cats:
+            self._event_categories = [str(cat).strip().replace(" ", "_").upper() for cat in event_cats.split(',')]
+        else:
+            self._event_categories = []
+        event_subcats = config.get('event_subcategories')
+        if event_subcats:
+            self._event_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in event_subcats.split(',')]
+        else:
+            self._event_subcategories = []
+        self._event_severity_lower = int(config.get('event_severity_lower'))
+        self._event_severity_upper = int(config.get('event_severity_upper'))
+        if self._event_severity_lower >= self._event_severity_upper:
+            self.save_progress("Initialization Failed: Invalid Range for Event Severity- {} is not lower than {}"
+                    .format(self._event_severity_lower, self._event_severity_upper))
+            return phantom.APP_ERROR
+        self._event_limit = int(config.get('event_limit'))
 
         return phantom.APP_SUCCESS
 
