@@ -79,6 +79,7 @@ class IronnetConnector(BaseConnector):
         self._event_severity_lower = None
         self._event_severity_upper = None
         self._event_limit = None
+        self._store_event_notifs_in_alert_containers = None
 
     def _process_empty_response(self, response, action_result):
 
@@ -492,30 +493,52 @@ class IronnetConnector(BaseConnector):
                         event = event_notification['event']
                         if event['category'] not in self._event_categories and event['sub_category'] not in self._event_subcategories:
                             if self._event_severity_lower <= int(event['severity']) <= self._event_severity_upper:
-                                # create container
-                                container = {
-                                    'name': event['id'],
-                                    'kill_chain': event['category'],
-                                    'description': "IronDefense {}/{} event".
-                                    format(event['category'], event['sub_category']),
-                                    'source_data_identifier': event['id'],
-                                    'data': event,
-                                }
-                                container_status, container_msg, container_id = self.save_container(container)
-                                if container_status == phantom.APP_ERROR:
-                                    self.debug_print("Failed to store: {}".format(container_msg))
-                                    self.debug_print("Failed with status: {}".format(container_status))
-                                    action_result.set_status(phantom.APP_ERROR, 'Event Notification container creation failed: {}'.format(container_msg))
-                                    return container_status
+                                if self._store_event_notifs_in_alert_containers:
+                                    # store in alert container
+                                    container = {
+                                        'name': event['alert_id'],
+                                        'source_data_identifier': event['alert_id'],
+                                    }
+                                    container_status, container_msg, container_id = self.save_container(container)
+                                    if container_status == phantom.APP_ERROR:
+                                        self.debug_print("Failed to store: {}".format(container_msg))
+                                        self.debug_print("Failed with status: {}".format(container_status))
+                                        action_result.set_status(phantom.APP_ERROR, 'Event Notification container creation failed: {}'.format(container_msg))
+                                        return container_status
 
-                                # add notification as artifact of container
-                                artifact = {
-                                    'data': event_notification,
-                                    'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
-                                    'container_id': container_id,
-                                    'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
-                                    'start_time': event['updated']
-                                }
+                                    # add notification as artifact of container
+                                    artifact = {
+                                        'data': event,
+                                        'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
+                                        'container_id': container_id,
+                                        'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
+                                        'start_time': event['updated']
+                                    }
+                                else:
+                                    # store in event container
+                                    container = {
+                                        'name': event['id'],
+                                        'kill_chain': event['category'],
+                                        'description': "IronDefense {}/{} event".
+                                        format(event['category'], event['sub_category']),
+                                        'source_data_identifier': event['id'],
+                                        'data': event,
+                                    }
+                                    container_status, container_msg, container_id = self.save_container(container)
+                                    if container_status == phantom.APP_ERROR:
+                                        self.debug_print("Failed to store: {}".format(container_msg))
+                                        self.debug_print("Failed with status: {}".format(container_status))
+                                        action_result.set_status(phantom.APP_ERROR, 'Event Notification container creation failed: {}'.format(container_msg))
+                                        return container_status
+
+                                    # add notification as artifact of container
+                                    artifact = {
+                                        'data': event_notification,
+                                        'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
+                                        'container_id': container_id,
+                                        'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
+                                        'start_time': event['updated']
+                                    }
                                 artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
                                 if artifact_status == phantom.APP_ERROR:
                                     self.debug_print("Failed to store: {}".format(artifact_msg))
@@ -642,6 +665,7 @@ class IronnetConnector(BaseConnector):
                     .format(self._event_severity_lower, self._event_severity_upper))
             return phantom.APP_ERROR
         self._event_limit = int(config.get('event_limit'))
+        self._store_event_notifs_in_alert_containers = config.get('store_event_notifs_in_alert_containers')
 
         return phantom.APP_SUCCESS
 

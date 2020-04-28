@@ -117,49 +117,56 @@
             "data_type": "boolean",
             "required": false,
             "default": false,
-            "order": 4
+            "order": 14
         },
         "event_notif_actions": {
             "description": "Event Notification Actions to include for ingest (if ingest is enabled).  Enter in CSV format.",
             "data_type": "string",
             "required": false,
             "default": "Event Created",
-            "order": 5
+            "order": 15
         },
         "event_categories": {
             "description": "Event Categories to exclude from ingest (if ingest is enabled).  Enter in CSV format.",
             "data_type": "string",
             "required": false,
             "default": "",
-            "order": 6
+            "order": 16
         },
         "event_subcategories": {
             "description": "Event SubCategories to exclude from ingest (if ingest is enabled). Enter in CSV format.",
             "data_type": "string",
             "required": false,
             "default": "",
-            "order": 7
+            "order": 17
         },
         "event_severity_lower": {
             "description": "Minimum Severity of Events to ingest (if ingest is enabled)",
             "data_type": "numeric",
             "required": false,
             "default": 500,
-            "order": 8
+            "order": 18
         },
         "event_severity_upper": {
             "description": "Maximum Severity of Events to ingest (if ingest is enabled)",
             "data_type": "numeric",
             "required": false,
             "default": 1000,
-            "order": 9
+            "order": 19
         },
         "event_limit": {
             "description": "Limit of Event Notifications to ingest at a time (if ingest is enabled)",
             "data_type": "numeric",
             "required": false,
             "default": 500,
-            "order": 10
+            "order": 20
+        },
+        "store_event_notifs_in_alert_containers": {
+            "description": "Store Event Notification in Alert Containers. If selected, Event Notifications will be stored as artifacts in the container of their corresponding Alert (Note that if this option is selected, any Event Notifications prior to the event being associated with the alert will not be ingested). If left unselected, Event Notifications will be stored as artifacts in their own container.",
+            "data_type": "boolean",
+            "required": false,
+            "default": false,
+            "order": 21
         }
     },
     "actions": [
