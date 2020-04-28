@@ -165,7 +165,7 @@
             "description": "Store Event Notification in Alert Containers. If selected, Event Notifications will be stored as artifacts in the container of their corresponding Alert (Note that if this option is selected, any Event Notifications prior to the event being associated with the alert will not be ingested). If left unselected, Event Notifications will be stored as artifacts in their own container.",
             "data_type": "boolean",
             "required": false,
-            "default": false,
+            "default": true,
             "order": 21
         }
     },
