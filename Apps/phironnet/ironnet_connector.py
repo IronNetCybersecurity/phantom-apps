@@ -553,6 +553,43 @@ class IronnetConnector(BaseConnector):
                 self.save_progress("Fetching event notifications failed")
                 return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
 
+    def _handle_irondefense_get_alerts(self, param):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        self.save_progress("Received param: {0}".format(param))
+
+        # Access action parameters passed in the 'param' dictionary
+        request = {}
+        if 'alert_id' in param and param['alert_id'].strip() != '':
+            request['alert_id'] = param['alert_id'].strip().split(",")
+        if 'category' in param and param['category'].strip() != '':
+            request['category'] = [str(cat).strip().replace(" ", "_").upper() for cat in param['category'].split(',')]
+        if 'sub_category' in param and param['sub_category'].strip() != '':
+            request['sub_category'] = [str(cat).strip().replace(" ", "_").upper() for cat in param['sub_category'].split(',')]
+        if 'status' in param and param['status'].strip() != '':
+            request['status'] = [status_mapping[status.strip().lower()] for status in param['status'].split(',')]
+        if 'min_severity' in param and param['min_severity'].strip() != "" and 'max_severity' in param and param['max_severity'].strip() != "":
+            request['severity'] = {
+                "lower_bound": int(param['min_severity']),
+                "upper_bound": int(param['max_severity'])
+            }
+
+        # make rest call
+        ret_val, response = self._make_post('/GetAlerts', action_result, data=request, headers=None)
+
+        # Add the response into the data section
+        action_result.add_data(response)
+
+        if phantom.is_success(ret_val):
+            self.debug_print("Retrieving alerts was successful")
+            return action_result.set_status(phantom.APP_SUCCESS, "Retrieving alerts was successful")
+        else:
+            self.debug_print("Retrieving alerts failed. Error: {}".format(action_result.get_message()))
+            return action_result.set_status(phantom.APP_ERROR, "Retrieving alerts failed. Error: {}".format(action_result.get_message()))
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -591,6 +628,8 @@ class IronnetConnector(BaseConnector):
             else:
                 self.save_progress("Fetching event notifications is disabled")
             ret_val = alert_ret_val and dome_ret_val and event_ret_val
+        elif action_id == 'irondefense_get_alerts':
+            ret_val = self._handle_irondefense_get_alerts(param)
 
         return ret_val
 
@@ -609,63 +648,66 @@ class IronnetConnector(BaseConnector):
 
         # Alert Notification Configs
         self._enable_alert_notifications = config.get('enable_alert_notifications')
-        alert_acts = config.get('alert_notif_actions')
-        if alert_acts:
-            self._alert_notif_actions = ["ANA_" + str(act).strip().replace(" ", "_").upper() for act in alert_acts.split(',')]
-        else:
-            self._alert_notif_actions = ["ANA_ALERT_CREATED"]
-        alert_cats = config.get('alert_categories')
-        if alert_cats:
-            self._alert_categories = [str(cat).strip().replace(" ", "_").upper() for cat in alert_cats.split(',')]
-        else:
-            self._alert_categories = []
-        alert_subcats = config.get('alert_subcategories')
-        if alert_subcats:
-            self._alert_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in alert_subcats.split(',')]
-        else:
-            self._alert_subcategories = []
-        self._alert_severity_lower = int(config.get('alert_severity_lower'))
-        self._alert_severity_upper = int(config.get('alert_severity_upper'))
-        if self._alert_severity_lower >= self._alert_severity_upper:
-            self.save_progress("Initialization Failed: Invalid Range for Alert Severity- {} is not lower than {}"
-                    .format(self._alert_severity_lower, self._alert_severity_upper))
-            return phantom.APP_ERROR
-        self._alert_limit = int(config.get('alert_limit'))
+        if self._enable_alert_notifications:
+            alert_acts = config.get('alert_notif_actions')
+            if alert_acts:
+                self._alert_notif_actions = ["ANA_" + str(act).strip().replace(" ", "_").upper() for act in alert_acts.split(',')]
+            else:
+                self._alert_notif_actions = ["ANA_ALERT_CREATED"]
+            alert_cats = config.get('alert_categories')
+            if alert_cats:
+                self._alert_categories = [str(cat).strip().replace(" ", "_").upper() for cat in alert_cats.split(',')]
+            else:
+                self._alert_categories = []
+            alert_subcats = config.get('alert_subcategories')
+            if alert_subcats:
+                self._alert_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in alert_subcats.split(',')]
+            else:
+                self._alert_subcategories = []
+            self._alert_severity_lower = int(config.get('alert_severity_lower'))
+            self._alert_severity_upper = int(config.get('alert_severity_upper'))
+            if self._alert_severity_lower >= self._alert_severity_upper:
+                self.save_progress("Initialization Failed: Invalid Range for Alert Severity- {} is not lower than {}"
+                        .format(self._alert_severity_lower, self._alert_severity_upper))
+                return phantom.APP_ERROR
+            self._alert_limit = int(config.get('alert_limit'))
 
         # Dome Notification Configs
         self._enable_dome_notifications = config.get('enable_dome_notifications')
-        dome_cats = config.get('dome_categories')
-        if dome_cats:
-            self._dome_categories = ["DNC_{}".format(str(cat).strip().replace(" ", "_").upper()) for cat in dome_cats.split(',')]
-        else:
-            self._dome_categories = []
-        self._dome_limit = int(config.get('dome_limit'))
+        if self._enable_dome_notifications:
+            dome_cats = config.get('dome_categories')
+            if dome_cats:
+                self._dome_categories = ["DNC_{}".format(str(cat).strip().replace(" ", "_").upper()) for cat in dome_cats.split(',')]
+            else:
+                self._dome_categories = []
+            self._dome_limit = int(config.get('dome_limit'))
 
         # Event Notification Configs
         self._enable_event_notifications = config.get('enable_event_notifications')
-        event_acts = config.get('event_notif_actions')
-        if event_acts:
-            self._event_notif_actions = ["ENA_" + str(act).strip().replace(" ", "_").upper() for act in event_acts.split(',')]
-        else:
-            self._event_notif_actions = ["ENA_EVENT_CREATED"]
-        event_cats = config.get('event_categories')
-        if event_cats:
-            self._event_categories = [str(cat).strip().replace(" ", "_").upper() for cat in event_cats.split(',')]
-        else:
-            self._event_categories = []
-        event_subcats = config.get('event_subcategories')
-        if event_subcats:
-            self._event_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in event_subcats.split(',')]
-        else:
-            self._event_subcategories = []
-        self._event_severity_lower = int(config.get('event_severity_lower'))
-        self._event_severity_upper = int(config.get('event_severity_upper'))
-        if self._event_severity_lower >= self._event_severity_upper:
-            self.save_progress("Initialization Failed: Invalid Range for Event Severity- {} is not lower than {}"
-                    .format(self._event_severity_lower, self._event_severity_upper))
-            return phantom.APP_ERROR
-        self._event_limit = int(config.get('event_limit'))
-        self._store_event_notifs_in_alert_containers = config.get('store_event_notifs_in_alert_containers')
+        if self._enable_event_notifications:
+            event_acts = config.get('event_notif_actions')
+            if event_acts:
+                self._event_notif_actions = ["ENA_" + str(act).strip().replace(" ", "_").upper() for act in event_acts.split(',')]
+            else:
+                self._event_notif_actions = ["ENA_EVENT_CREATED"]
+            event_cats = config.get('event_categories')
+            if event_cats:
+                self._event_categories = [str(cat).strip().replace(" ", "_").upper() for cat in event_cats.split(',')]
+            else:
+                self._event_categories = []
+            event_subcats = config.get('event_subcategories')
+            if event_subcats:
+                self._event_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in event_subcats.split(',')]
+            else:
+                self._event_subcategories = []
+            self._event_severity_lower = int(config.get('event_severity_lower'))
+            self._event_severity_upper = int(config.get('event_severity_upper'))
+            if self._event_severity_lower >= self._event_severity_upper:
+                self.save_progress("Initialization Failed: Invalid Range for Event Severity- {} is not lower than {}"
+                        .format(self._event_severity_lower, self._event_severity_upper))
+                return phantom.APP_ERROR
+            self._event_limit = int(config.get('event_limit'))
+            self._store_event_notifs_in_alert_containers = config.get('store_event_notifs_in_alert_containers')
 
         return phantom.APP_SUCCESS
 

@@ -1050,6 +1050,123 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "get alerts",
+            "identifier": "irondefense_get_alerts",
+            "description": "Retrieves Alerts within IronDefense",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "alert_id": {
+                    "description": "The IDs of the IronDefense alerts to filter. Enter in CSV format.",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 0
+                },
+                "category": {
+                    "description": "The categories of the IronDefense alerts to filter. Enter in CSV format.",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 1
+                },
+                "sub_category": {
+                    "description": "The subcategories of the IronDefense alerts to filter. Enter in CSV format.",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 2
+                },
+                "status": {
+                    "description": "The statuses of the IronDefense alerts to filter. Enter in CSV format.",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 3
+                },
+                "min_severity": {
+                    "description": "The minimum severity of IronDefense alerts to filter.",
+                    "data_type": "numeric",
+                    "required": false,
+                    "order": 6
+                },
+                "max_severity": {
+                    "description": "The maximum severity of IronDefense alerts to filter.",
+                    "data_type": "numeric",
+                    "required": false,
+                    "order": 7
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 0,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.alert_id",
+                    "data_type": "string",
+                    "column_name": "Alert IDs",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.category",
+                    "data_type": "string",
+                    "column_name": "Alert Categories",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.sub_category",
+                    "data_type": "string",
+                    "column_name": "Alert SubCategories",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.parameter.status",
+                    "data_type": "string",
+                    "column_name": "Alert Status",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.parameter.min_severity",
+                    "data_type": "numeric",
+                    "column_name": "Alert Severity Minimum",
+                    "column_order": 5
+                },
+                {
+                    "data_path": "action_result.parameter.max_severity",
+                    "data_type": "numeric",
+                    "column_name": "Alert Severity Maximum",
+                    "column_order": 6
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ]
 }
