@@ -590,6 +590,31 @@ class IronnetConnector(BaseConnector):
             self.debug_print("Retrieving alerts failed. Error: {}".format(action_result.get_message()))
             return action_result.set_status(phantom.APP_ERROR, "Retrieving alerts failed. Error: {}".format(action_result.get_message()))
 
+    def _handle_irondefense_get_events(self, param):
+            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+            # Add an action result object to self (BaseConnector) to represent the action for this param
+            action_result = self.add_action_result(ActionResult(dict()))
+
+            # Access action parameters passed in the 'param' dictionary
+            request = {
+                'alert_id': param['alert_id']
+            }
+            # make rest call
+            ret_val, response = self._make_post('/GetEvents', action_result, data=request, headers=None)
+
+            # Add the response into the data section
+            action_result.add_data(response)
+
+            if phantom.is_success(ret_val):
+                self.debug_print("Retrieving events was successful")
+                return action_result.set_status(phantom.APP_SUCCESS, "Retrieving events was successful")
+            else:
+                self.debug_print("Retrieving events failed. Error: {}".format(action_result.get_message()))
+                return action_result.set_status(phantom.APP_ERROR,
+                                                "Retrieving events failed. Error: {}".format(
+                                                    action_result.get_message()))
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -610,6 +635,8 @@ class IronnetConnector(BaseConnector):
             ret_val = self._handle_irondefense_report_observed_bad_activity(param)
         elif action_id == 'irondefense_get_alert_irondome_info':
             ret_val = self._handle_irondefense_get_alert_irondome_info(param)
+        elif action_id == 'irondefense_get_events':
+            ret_val = self._handle_irondefense_get_events(param)
         elif action_id == 'on_poll':
             alert_ret_val = phantom.APP_SUCCESS
             dome_ret_val = phantom.APP_SUCCESS
