@@ -1161,6 +1161,160 @@
                 {
                     "data_path": "summary.total_objects_successful",
                     "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "STATUS_AWAITING_REVIEW",
+                        "STATUS_UNDER_REVIEW",
+                        "STATUS_CLOSED"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.category",
+                    "data_type": "string",
+                    "example_values": [
+                        "C2",
+                        "ACTION",
+                        "ACCESS",
+                        "RECON",
+                        "OTHER"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.updated",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.raw_data_formats",
+                    "data_type": "string",
+                    "example_values": [
+                        "RDF_TAP"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.severity",
+                    "data_type": "numeric",
+                    "example_values": [
+                        500
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.created",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.first_event_created",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.aggregation_criteria",
+                    "data_type": "string",
+                    "example_values": [
+                        "scanner.scanner_ip: [\"1.2.3.4\"]"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.event_count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.analyst_severity",
+                    "data_type": "string",
+                    "example_values": [
+                        "SEVERITY_UNDECIDED",
+                        "SEVERITY_BENIGN",
+                        "SEVERITY_SUSPICIOUS",
+                        "SEVERITY_MALICIOUS"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.vue_url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://1.2.3.4/alerts?alerts.sort=severity%3ADESC&filter=alertId%3D%3D<alert-id>"
+                    ],
+                    "contains": [
+                        "url"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.last_event_created",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-09-05T19:33:32.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "c60c4168-3fe8-4a6d-b0d1-4977673c98fd"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.analyst_expectation",
+                    "data_type": "string",
+                    "example_values": [
+                        "EXP_EXPECTED",
+                        "EXP_UNEXPECTED",
+                        "EXP_UNKNOWN"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.alerts.*.sub_category",
+                    "data_type": "string",
+                    "example_values": [
+                        "EXTERNAL_PORT_SCANNING"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.constraint.total",
+                    "data_type": "string",
+                    "example_values": [
+                        "1014890"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.constraint.limit",
+                    "data_type": "numeric",
+                    "example_values": [
+                        50
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.constraint.offset",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.sort_field",
+                    "data_type": "string",
+                    "example_values": [
+                        "Created"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.sort_order",
+                    "data_type": "string",
+                    "example_values": [
+                        "Descending"
+                    ]
                 }
             ],
             "render": {
