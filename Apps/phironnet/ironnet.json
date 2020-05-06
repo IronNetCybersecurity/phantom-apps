@@ -1039,6 +1039,269 @@
             "versions": "EQ(*)"
         },
         {
+            "action": "get events",
+            "identifier": "irondefense_get_events",
+            "description": "Retrieves IronDefense Events for a given Alert ID",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "alert_id": {
+                    "description": "The ID of the alert associated with the events to retrieve",
+                    "data_type": "string",
+                    "required": true,
+                    "primary": true,
+                    "order": 0
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 0,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "example_values": [
+                        "Retrieving events was successful"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.alert_id",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.sub_category",
+                    "data_type": "string",
+                    "example_values": [
+                        "UNUSUAL_SERVER_CONNECTIONS"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.dst_entity_attribute_type",
+                    "data_type": "string",
+                    "example_values": [
+                        ""
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.src_entity_attribute",
+                    "data_type": "string",
+                    "example_values": [
+                        ""
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.alert_id",
+                    "data_type": "string",
+                    "example_values": [
+                        "0c740a2c-a566-4c95-a8be-5f48082de2b2"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.total_bytes",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "0c740a2c-a566-4c95-a8be-5f48082de2b2"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.src_entity_attribute_type",
+                    "data_type": "string",
+                    "example_values": [
+                        ""
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.category",
+                    "data_type": "string",
+                    "example_values": [
+                        "C2",
+                        "ACTION",
+                        "ACCESS",
+                        "RECON",
+                        "OTHER"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.is_blacklisted",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.confidence",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.severity",
+                    "data_type": "numeric",
+                    "example_values": [
+                        500
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.bytes_in",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.is_whitelisted",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.src_ip",
+                    "data_type": "string",
+                    "example_values": [
+                        ""
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.end_time",
+                    "data_type": "string",
+                    "example_values": [
+                        "2020-04-30T20:41:35.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.updated",
+                    "data_type": "string",
+                    "example_values": [
+                        "2020-05-01T14:43:13.318275Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.bytes_out",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.start_time",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-10-24 10:36:43.676105+00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.dst_entity_attribute",
+                    "data_type": "string",
+                    "example_values": [
+                        ""
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.created",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-10-24 10:36:43.676105+00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.url",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.secondary_app_protocol",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.primary_app_protocol",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.dst_port",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.iron_dome_shared_time",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-10-24 10:36:43.676105+00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.dst_ip",
+                    "data_type": "string",
+                    "example_values": [
+                        "1.2.3.4"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.events.*.vue_url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://1.2.3.4/event?uuid=9f61e9e9af904540ac8bd730f5ed48d2"
+                    ],
+                    "contains": [
+                        "url"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.constraint.total",
+                    "data_type": "string",
+                    "example_values": [
+                        "1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.constraint.limit",
+                    "data_type": "numeric",
+                    "example_values": [
+                        50
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.constraint.offset",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
             "action": "on poll",
             "identifier": "on_poll",
             "description": "Ingests Configured Notifications from IronDefense into Phantom",
