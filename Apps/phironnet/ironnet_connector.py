@@ -571,11 +571,12 @@ class IronnetConnector(BaseConnector):
             request['sub_category'] = [str(cat).strip().replace(" ", "_").upper() for cat in param['sub_category'].split(',')]
         if 'status' in param and param['status'].strip() != '':
             request['status'] = [status_mapping[status.strip().lower()] for status in param['status'].split(',')]
-        if 'min_severity' in param and param['min_severity'].strip() != "" and 'max_severity' in param and param['max_severity'].strip() != "":
-            request['severity'] = {
-                "lower_bound": int(param['min_severity']),
-                "upper_bound": int(param['max_severity'])
-            }
+        min_sev = 0 if 'min_severity' not in param else param['min_severity']
+        max_sev = 1000 if 'max_severity' not in param else param['max_severity']
+        request['severity'] = {
+            "lower_bound": min_sev,
+            "upper_bound": max_sev
+        }
 
         # make rest call
         ret_val, response = self._make_post('/GetAlerts', action_result, data=request, headers=None)
