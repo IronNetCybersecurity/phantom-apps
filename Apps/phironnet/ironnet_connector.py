@@ -616,6 +616,31 @@ class IronnetConnector(BaseConnector):
                                                 "Retrieving events failed. Error: {}".format(
                                                     action_result.get_message()))
 
+    def _handle_irondefense_get_event(self, param):
+            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+            # Add an action result object to self (BaseConnector) to represent the action for this param
+            action_result = self.add_action_result(ActionResult(dict()))
+
+            # Access action parameters passed in the 'param' dictionary
+            request = {
+                'event_id': param['event_id']
+            }
+            # make rest call
+            ret_val, response = self._make_post('/GetEvent', action_result, data=request, headers=None)
+
+            # Add the response into the data section
+            action_result.add_data(response)
+
+            if phantom.is_success(ret_val):
+                self.debug_print("Retrieving event was successful")
+                return action_result.set_status(phantom.APP_SUCCESS, "Retrieving event was successful")
+            else:
+                self.debug_print("Retrieving event failed. Error: {}".format(action_result.get_message()))
+                return action_result.set_status(phantom.APP_ERROR,
+                                                "Retrieving event failed. Error: {}".format(
+                                                    action_result.get_message()))
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
