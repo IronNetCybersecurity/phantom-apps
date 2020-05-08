@@ -1622,10 +1622,7 @@
                 },
                 {
                     "data_path": "action_result.message",
-                    "data_type": "string",
-                    "example_values": [
-                        "Retrieving event was successful"
-                    ]
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.event_id",
@@ -1766,7 +1763,7 @@
                     "data_path": "action_result.data.*.event.app_domains",
                     "data_type": "string",
                     "example_values": [
-                        "postmanDomain502925.io"
+                        "example.domain"
                     ]
                 },
                 {
@@ -1894,10 +1891,7 @@
                 },
                 {
                     "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.string_value",
-                    "data_type": "string",
-                    "example_values": [
-                        "Postman RepObserveBadActivity-502925"
-                    ]
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.ip_value",
