@@ -683,6 +683,8 @@ class IronnetConnector(BaseConnector):
             ret_val = alert_ret_val and dome_ret_val and event_ret_val
         elif action_id == 'irondefense_get_alerts':
             ret_val = self._handle_irondefense_get_alerts(param)
+        elif action_id == 'irondefense_get_event':
+            ret_val = self._handle_irondefense_get_event(param)
 
         return ret_val
 

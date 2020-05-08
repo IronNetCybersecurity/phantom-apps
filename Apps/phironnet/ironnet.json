@@ -1622,7 +1622,10 @@
                 },
                 {
                     "data_path": "action_result.message",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "Retrieving event was successful"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.event_id",
@@ -1630,11 +1633,305 @@
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.sub_category",
+                    "data_type": "string",
+                    "example_values": [
+                        "THREAT_INTELLIGENCE_RULE_MATCH"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.dst_entity_attribute_type",
+                    "data_type": "string",
+                    "example_values": [
+                        "EAT_NONE"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.src_entity_attribute",
+                    "data_type": "string",
+                    "example_values": [
+                        ""
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.alert_id",
+                    "data_type": "string",
+                    "example_values": [
+                        "0c740a2c-a566-4c95-a8be-5f48082de2b2"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.total_bytes",
+                    "data_type": "string",
+                    "example_values": [
+                        "948"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "0c740a2c-a566-4c95-a8be-5f48082de2b2"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.src_entity_attribute_type",
+                    "data_type": "string",
+                    "example_values": [
+                        "EAT_NONE"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.category",
+                    "data_type": "string",
+                    "example_values": [
+                        "OTHER"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.is_blacklisted",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.confidence",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.raw_data_formats",
+                    "data_type": "string",
+                    "example_values": [
+                        "RDF_DNS_LOGS"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.severity",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1000
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.bytes_in",
+                    "data_type": "string",
+                    "example_values": [
+                        "807"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.is_whitelisted",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.src_ip",
+                    "data_type": "string",
+                    "example_values": [
+                        "1.2.3.4"
+                    ],
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.end_time",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-10-24 10:36:43.676105+00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.app_domains",
+                    "data_type": "string",
+                    "example_values": [
+                        "postmanDomain502925.io"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.updated",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-10-24 10:36:43.676105+00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.bytes_out",
+                    "data_type": "string",
+                    "example_values": [
+                        "141"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.start_time",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-10-24 10:36:43.676105+00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.dst_entity_attribute",
+                    "data_type": "string",
+                    "example_values": [
+                        ""
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.created",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-10-24 10:36:43.676105+00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.url",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.event.secondary_app_protocol",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.event.primary_app_protocol",
+                    "data_type": "string",
+                    "example_values": [
+                        "HTTP"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.dst_port",
+                    "data_type": "string",
+                    "example_values": [
+                        "443"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.iron_dome_shared_time",
+                    "data_type": "string",
+                    "example_values": [
+                        "2019-10-24 10:36:43.676105+00"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.dst_ip",
+                    "data_type": "string",
+                    "example_values": [
+                        "1.2.3.4"
+                    ],
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.event.vue_url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://1.2.3.4/event?uuid=0c740a2ca5664c95a8be5f48082de2b2"
+                    ],
+                    "contains": [
+                        "url"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "flows"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.long_value",
+                    "data_type": "string",
+                    "example_values": [
+                        "0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "majestic_tdurs_rank"
+                    ],
+                    "contains": [
+                        "url"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.trans_protocol_value",
+                    "data_type": "string",
+                    "example_values": [
+                        "TCP"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.bool_value",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.string_value",
+                    "data_type": "string",
+                    "example_values": [
+                        "Postman RepObserveBadActivity-502925"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.ip_value",
+                    "data_type": "string",
+                    "example_values": [
+                        "1.2.3.4"
+                    ],
+                    "contains": [
+                        "ip"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.app_protocol_value",
+                    "data_type": "string",
+                    "example_values": [
+                        "HTTP"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.uuid_value",
+                    "data_type": "string",
+                    "example_values": [
+                        "0c740a2ca5664c95a8be5f48082de2b2"
+                    ],
+                    "contains": [
+                        "md5"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.context.*.columns.*.values.*.data.*.double_value",
+                    "data_type": "numeric",
+                    "example_values": [
+                        0
+                    ]
                 }
             ],
             "render": {
