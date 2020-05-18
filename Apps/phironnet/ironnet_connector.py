@@ -227,9 +227,9 @@ class IronnetConnector(BaseConnector):
 
         # Access action parameters passed in the 'param' dictionary
         request = {
-            'alert_id': param['alert_id'],
-            'comment': param['comment'],
-            'share_comment_with_irondome': param['share_comment_with_irondome'],
+            'alert_id': param.get('alert_id'),
+            'comment': param.get('comment'),
+            'share_comment_with_irondome': param.get('share_comment_with_irondome'),
             'analyst_severity': severity_mapping[param.get('analyst_severity', '')],
             'analyst_expectation': expectation_mapping[param.get('analyst_expectation', '')]
         }
@@ -257,10 +257,10 @@ class IronnetConnector(BaseConnector):
 
         # Access action parameters passed in the 'param' dictionary
         request = {
-            'alert_id': param['alert_id'],
-            'comment': param['comment'],
-            'share_comment_with_irondome': param['share_comment_with_irondome'],
-            'status': status_mapping[param['alert_status']]
+            'alert_id': param.get('alert_id'),
+            'comment': param.get('comment'),
+            'share_comment_with_irondome': param.get('share_comment_with_irondome'),
+            'status': status_mapping[param.get('alert_status')]
         }
 
         # make rest call
@@ -271,10 +271,10 @@ class IronnetConnector(BaseConnector):
 
         if phantom.is_success(ret_val):
             self.debug_print("Setting alert staus was successful")
-            return action_result.set_status(phantom.APP_SUCCESS, "Setting alert staus was successful")
+            return action_result.set_status(phantom.APP_SUCCESS, "Setting alert status was successful")
         else:
-            self.debug_print("Settings alert status failed. Error: {}".format(action_result.get_message()))
-            return action_result.set_status(phantom.APP_ERROR, "Settings alert status failed. Error: {}".format(action_result.get_message()))
+            self.debug_print("Setting alert status failed. Error: {}".format(action_result.get_message()))
+            return action_result.set_status(phantom.APP_ERROR, "Setting alert status failed. Error: {}".format(action_result.get_message()))
 
     def _handle_irondefense_comment_on_alert(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
@@ -286,9 +286,9 @@ class IronnetConnector(BaseConnector):
 
         # Access action parameters passed in the 'param' dictionary
         request = {
-            'alert_id': param['alert_id'],
-            'comment': param['comment'],
-            'share_comment_with_irondome': param['share_comment_with_irondome']
+            'alert_id': param.get('alert_id'),
+            'comment': param.get('comment'),
+            'share_comment_with_irondome': param.get('share_comment_with_irondome')
         }
 
         # make rest call
