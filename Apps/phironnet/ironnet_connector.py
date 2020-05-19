@@ -167,12 +167,10 @@ class IronnetConnector(BaseConnector):
         if kwargs['headers'] is None:
             kwargs['headers'] = {'Content-Type': 'application/json'}
 
-        resp_json = None
-
         try:
             request_func = getattr(requests, method)
         except AttributeError:
-            return RetVal(action_result.set_status(phantom.APP_ERROR, "Invalid method: {0}".format(method)), resp_json)
+            return RetVal(action_result.set_status(phantom.APP_ERROR, "Invalid method: {0}".format(method)), None)
 
         # Create a URL to connect to
         url = UnicodeDammit(self._base_url).unicode_markup.encode('utf-8') + endpoint
@@ -199,7 +197,7 @@ class IronnetConnector(BaseConnector):
             self.save_progress("Error while issuing REST call - {}".format(error_msg))
             return RetVal(
                 action_result.set_status(phantom.APP_ERROR, "Error Connecting to server. Details: {0}".format(error_msg)),
-                resp_json)
+                None)
 
         return self._process_response(r, action_result)
 
@@ -508,7 +506,7 @@ class IronnetConnector(BaseConnector):
 
                                     # add notification as artifact of container
                                     artifact = {
-                                        'data': event,
+                                        'data': event_notification,
                                         'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
                                         'container_id': container_id,
                                         'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
@@ -706,17 +704,20 @@ class IronnetConnector(BaseConnector):
         if self._enable_alert_notifications:
             alert_acts = config.get('alert_notif_actions')
             if alert_acts:
-                self._alert_notif_actions = ["ANA_" + str(act).strip().replace(" ", "_").upper() for act in alert_acts.split(',')]
+                self._alert_notif_actions = ["ANA_" + str(act).strip().replace(" ", "_").upper() for act in
+                                             alert_acts.split(',') if act.strip()]
             else:
                 self._alert_notif_actions = ["ANA_ALERT_CREATED"]
             alert_cats = config.get('alert_categories')
             if alert_cats:
-                self._alert_categories = [str(cat).strip().replace(" ", "_").upper() for cat in alert_cats.split(',')]
+                self._alert_categories = [str(cat).strip().replace(" ", "_").upper() for cat in alert_cats.split(',')
+                                          if cat.strip()]
             else:
                 self._alert_categories = []
             alert_subcats = config.get('alert_subcategories')
             if alert_subcats:
-                self._alert_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in alert_subcats.split(',')]
+                self._alert_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in
+                                             alert_subcats.split(',') if subcat.strip()]
             else:
                 self._alert_subcategories = []
             self._alert_severity_lower = int(config.get('alert_severity_lower'))
@@ -732,7 +733,8 @@ class IronnetConnector(BaseConnector):
         if self._enable_dome_notifications:
             dome_cats = config.get('dome_categories')
             if dome_cats:
-                self._dome_categories = ["DNC_{}".format(str(cat).strip().replace(" ", "_").upper()) for cat in dome_cats.split(',')]
+                self._dome_categories = ["DNC_{}".format(str(cat).strip().replace(" ", "_").upper()) for cat in
+                                         dome_cats.split(',') if cat.strip()]
             else:
                 self._dome_categories = []
             self._dome_limit = int(config.get('dome_limit'))
@@ -742,17 +744,20 @@ class IronnetConnector(BaseConnector):
         if self._enable_event_notifications:
             event_acts = config.get('event_notif_actions')
             if event_acts:
-                self._event_notif_actions = ["ENA_" + str(act).strip().replace(" ", "_").upper() for act in event_acts.split(',')]
+                self._event_notif_actions = ["ENA_" + str(act).strip().replace(" ", "_").upper() for act in
+                                             event_acts.split(',') if act.strip()]
             else:
                 self._event_notif_actions = ["ENA_EVENT_CREATED"]
             event_cats = config.get('event_categories')
             if event_cats:
-                self._event_categories = [str(cat).strip().replace(" ", "_").upper() for cat in event_cats.split(',')]
+                self._event_categories = [str(cat).strip().replace(" ", "_").upper() for cat in event_cats.split(',')
+                                          if cat.strip()]
             else:
                 self._event_categories = []
             event_subcats = config.get('event_subcategories')
             if event_subcats:
-                self._event_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in event_subcats.split(',')]
+                self._event_subcategories = [str(subcat).strip().replace(" ", "_").upper() for subcat in
+                                             event_subcats.split(',') if subcat.strip()]
             else:
                 self._event_subcategories = []
             self._event_severity_lower = int(config.get('event_severity_lower'))
