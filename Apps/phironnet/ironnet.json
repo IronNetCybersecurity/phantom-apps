@@ -1192,7 +1192,7 @@
                     "data_path": "action_result.data.*.events.*.src_ip",
                     "data_type": "string",
                     "example_values": [
-                        ""
+                        "1.2.3.4"
                     ]
                 },
                 {
@@ -1236,7 +1236,13 @@
                 },
                 {
                     "data_path": "action_result.data.*.events.*.url",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "contains": [
+                        "url"
+                    ],
+                    "example_values": [
+                        "https://example.url"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.events.*.secondary_app_protocol",
@@ -1244,11 +1250,23 @@
                 },
                 {
                     "data_path": "action_result.data.*.events.*.primary_app_protocol",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "contains": [
+                        "protocol"
+                    ],
+                    "example_values": [
+                        "http"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.events.*.dst_port",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "contains": [
+                        "port"
+                    ],
+                    "example_values": [
+                        "443"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.events.*.iron_dome_shared_time",
@@ -1260,6 +1278,9 @@
                 {
                     "data_path": "action_result.data.*.events.*.dst_ip",
                     "data_type": "string",
+                    "contains": [
+                        "ip"
+                    ],
                     "example_values": [
                         "1.2.3.4"
                     ]
@@ -1269,9 +1290,6 @@
                     "data_type": "string",
                     "example_values": [
                         "https://1.2.3.4/event?uuid=9f61e9e9af904540ac8bd730f5ed48d2"
-                    ],
-                    "contains": [
-                        "url"
                     ]
                 },
                 {
