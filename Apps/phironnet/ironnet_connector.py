@@ -126,17 +126,17 @@ class IronnetConnector(BaseConnector):
 
         # You should process the error returned in the json
         message = "Error from server. Status Code: {0} Data from server: {1}".format(
-            r.status_code, r.text.replace(u'{', '{{').replace(u'}', '}}'))
+            r.status_code, r.text.encode('utf-8').replace(u'{', '{{').replace(u'}', '}}'))
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
     def _process_response(self, r, action_result):
-        self.save_progress("Received response: Code:{}, Data:{}".format(r.status_code, r.text))
+        self.save_progress("Received response: Code:{}, Data:{}".format(r.status_code, r.text.encode('utf-8')))
 
         # store the r_text in debug data, it will get dumped in the logs if the action fails
         if hasattr(action_result, 'add_debug_data'):
             action_result.add_debug_data({'r_status_code': r.status_code})
-            action_result.add_debug_data({'r_text': r.text})
+            action_result.add_debug_data({'r_text': r.text.encode('utf-8')})
             action_result.add_debug_data({'r_headers': r.headers})
 
         # Process each 'Content-Type' of response separately
@@ -158,7 +158,7 @@ class IronnetConnector(BaseConnector):
 
         # everything else is actually an error at this point
         message = "Can't process response from server. Status Code: {0} Data from server: {1}".format(
-            r.status_code, r.text.replace('{', '{{').replace('}', '}}'))
+            r.status_code, r.text.encode('utf-8').replace('{', '{{').replace('}', '}}'))
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
@@ -362,194 +362,194 @@ class IronnetConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, "Retrieving IronDome alert info failed. Error: {}".format(action_result.get_message()))
 
     def _handle_irondefense_get_alert_notifications(self):
-            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
-            # Add an action result object to self (BaseConnector) to represent the action for this param
-            action_result = self.add_action_result(ActionResult(dict()))
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict()))
 
-            request = {
-                'limit': self._alert_limit
-            }
+        request = {
+            'limit': self._alert_limit
+        }
 
-            # make rest call
-            ret_val, response = self._make_post('/GetAlertNotifications', action_result, data=request, headers=None)
-            if phantom.is_success(ret_val):
-                self.save_progress("Fetching alert notifications was successful")
-                # Filter the response
-                for alert_notification in response['alert_notifications']:
-                    if alert_notification['alert_action'] in self._alert_notification_actions and alert_notification['alert']:
-                        alert = alert_notification['alert']
-                        if alert['category'] not in self._alert_categories and alert['sub_category'] not in self._alert_subcategories:
-                            if self._alert_severity_lower <= int(alert['severity']) <= self._alert_severity_upper:
-                                # create container
-                                container = {
-                                    'name': alert['id'],
-                                    'kill_chain': alert['category'],
-                                    'description': "IronDefense {}/{} alert".
-                                    format(alert['category'], alert['sub_category']),
-                                    'source_data_identifier': alert['id'],
-                                    'data': alert,
-                                }
-                                container_status, container_msg, container_id = self.save_container(container)
-                                if container_status == phantom.APP_ERROR:
-                                    self.debug_print("Failed to store: {}".format(container_msg))
-                                    self.debug_print("Failed with status: {}".format(container_status))
-                                    action_result.set_status(phantom.APP_ERROR, 'Alert Notification container creation failed: {}'.format(container_msg))
-                                    return container_status
-
-                                # add notification as artifact of container
-                                artifact = {
-                                    'data': alert_notification,
-                                    'name': "{} ALERT NOTIFICATION".format(alert_notification['alert_action'][4:].replace("_", " ")),
-                                    'container_id': container_id,
-                                    'source_data_identifier': "{}-{}".format(alert['id'], alert["updated"]),
-                                    'start_time': alert['updated']
-                                }
-                                artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
-                                if artifact_status == phantom.APP_ERROR:
-                                    self.debug_print("Failed to store: {}".format(artifact_msg))
-                                    self.debug_print("Failed with status: {}".format(artifact_status))
-                                    action_result.set_status(phantom.APP_ERROR, 'Alert Notification artifact creation failed: {}'.format(artifact_msg))
-                                    return artifact_status
-
-                self.save_progress("Filtering alert notifications was successful")
-                return action_result.set_status(phantom.APP_SUCCESS)
-            else:
-                self.debug_print(action_result.get_message())
-                self.save_progress("Fetching alert notifications failed")
-                return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
-
-    def _handle_irondefense_get_dome_notifications(self):
-            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
-
-            # Add an action result object to self (BaseConnector) to represent the action for this param
-            action_result = self.add_action_result(ActionResult(dict()))
-
-            request = {
-                'limit': self._dome_limit
-            }
-
-            # make rest call
-            ret_val, response = self._make_post('/GetDomeNotifications', action_result, data=request, headers=None)
-            if phantom.is_success(ret_val):
-                self.save_progress("Fetching dome notifications was successful")
-                # Filter the response
-                for dome_notification in response['dome_notifications']:
-                    if dome_notification['category'] not in self._dome_categories:
-                        for alert_id in dome_notification['alert_ids']:
-                            # create or find container
+        # make rest call
+        ret_val, response = self._make_post('/GetAlertNotifications', action_result, data=request, headers=None)
+        if phantom.is_success(ret_val):
+            self.save_progress("Fetching alert notifications was successful")
+            # Filter the response
+            for alert_notification in response['alert_notifications']:
+                if alert_notification['alert_action'] in self._alert_notification_actions and alert_notification['alert']:
+                    alert = alert_notification['alert']
+                    if alert['category'] not in self._alert_categories and alert['sub_category'] not in self._alert_subcategories:
+                        if self._alert_severity_lower <= int(alert['severity']) <= self._alert_severity_upper:
+                            # create container
                             container = {
-                                'name': alert_id,
-                                'source_data_identifier': alert_id,
+                                'name': alert['id'],
+                                'kill_chain': alert['category'],
+                                'description': "IronDefense {}/{} alert".
+                                format(alert['category'], alert['sub_category']),
+                                'source_data_identifier': alert['id'],
+                                'data': alert,
                             }
                             container_status, container_msg, container_id = self.save_container(container)
                             if container_status == phantom.APP_ERROR:
                                 self.debug_print("Failed to store: {}".format(container_msg))
                                 self.debug_print("Failed with status: {}".format(container_status))
-                                action_result.set_status(phantom.APP_ERROR, 'Dome Notification container creation failed: {}'.format(container_msg))
+                                action_result.set_status(phantom.APP_ERROR, 'Alert Notification container creation failed: {}'.format(container_msg))
                                 return container_status
 
                             # add notification as artifact of container
                             artifact = {
-                                'data': dome_notification,
-                                'name': "{} DOME NOTIFICATION".format(dome_notification['category'][4:].replace("_", " ")),
+                                'data': alert_notification,
+                                'name': "{} ALERT NOTIFICATION".format(alert_notification['alert_action'][4:].replace("_", " ")),
                                 'container_id': container_id,
-                                'source_data_identifier': "{}".format(dome_notification["id"]),
-                                'start_time': dome_notification['created']
+                                'source_data_identifier': "{}-{}".format(alert['id'], alert["updated"]),
+                                'start_time': alert['updated']
                             }
                             artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
                             if artifact_status == phantom.APP_ERROR:
                                 self.debug_print("Failed to store: {}".format(artifact_msg))
                                 self.debug_print("Failed with status: {}".format(artifact_status))
-                                action_result.set_status(phantom.APP_ERROR, 'Dome Notification artifact creation failed: {}'.format(artifact_msg))
+                                action_result.set_status(phantom.APP_ERROR, 'Alert Notification artifact creation failed: {}'.format(artifact_msg))
                                 return artifact_status
 
-                self.save_progress("Filtering dome notifications was successful")
-                return action_result.set_status(phantom.APP_SUCCESS)
-            else:
-                self.debug_print(action_result.get_message())
-                self.save_progress("Fetching dome notifications failed")
-                return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
+            self.save_progress("Filtering alert notifications was successful")
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.debug_print(action_result.get_message())
+            self.save_progress("Fetching alert notifications failed")
+            return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
+
+    def _handle_irondefense_get_dome_notifications(self):
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict()))
+
+        request = {
+            'limit': self._dome_limit
+        }
+
+        # make rest call
+        ret_val, response = self._make_post('/GetDomeNotifications', action_result, data=request, headers=None)
+        if phantom.is_success(ret_val):
+            self.save_progress("Fetching dome notifications was successful")
+            # Filter the response
+            for dome_notification in response['dome_notifications']:
+                if dome_notification['category'] not in self._dome_categories:
+                    for alert_id in dome_notification['alert_ids']:
+                        # create or find container
+                        container = {
+                            'name': alert_id,
+                            'source_data_identifier': alert_id,
+                        }
+                        container_status, container_msg, container_id = self.save_container(container)
+                        if container_status == phantom.APP_ERROR:
+                            self.debug_print("Failed to store: {}".format(container_msg))
+                            self.debug_print("Failed with status: {}".format(container_status))
+                            action_result.set_status(phantom.APP_ERROR, 'Dome Notification container creation failed: {}'.format(container_msg))
+                            return container_status
+
+                        # add notification as artifact of container
+                        artifact = {
+                            'data': dome_notification,
+                            'name': "{} DOME NOTIFICATION".format(dome_notification['category'][4:].replace("_", " ")),
+                            'container_id': container_id,
+                            'source_data_identifier': "{}".format(dome_notification["id"]),
+                            'start_time': dome_notification['created']
+                        }
+                        artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
+                        if artifact_status == phantom.APP_ERROR:
+                            self.debug_print("Failed to store: {}".format(artifact_msg))
+                            self.debug_print("Failed with status: {}".format(artifact_status))
+                            action_result.set_status(phantom.APP_ERROR, 'Dome Notification artifact creation failed: {}'.format(artifact_msg))
+                            return artifact_status
+
+            self.save_progress("Filtering dome notifications was successful")
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.debug_print(action_result.get_message())
+            self.save_progress("Fetching dome notifications failed")
+            return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
 
     def _handle_irondefense_get_event_notifications(self):
-            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
-            # Add an action result object to self (BaseConnector) to represent the action for this param
-            action_result = self.add_action_result(ActionResult(dict()))
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict()))
 
-            request = {
-                'limit': self._event_limit
-            }
+        request = {
+            'limit': self._event_limit
+        }
 
-            # make rest call
-            ret_val, response = self._make_post('/GetEventNotifications', action_result, data=request, headers=None)
-            if phantom.is_success(ret_val):
-                self.save_progress("Fetching event notifications was successful")
-                # Filter the response
-                for event_notification in response['event_notifications']:
-                    if event_notification['event_action'] in self._event_notification_actions and event_notification['event']:
-                        event = event_notification['event']
-                        if event['category'] not in self._event_categories and event['sub_category'] not in self._event_subcategories:
-                            if self._event_severity_lower <= int(event['severity']) <= self._event_severity_upper:
-                                if self._store_event_notifs_in_alert_containers:
-                                    # store in alert container
-                                    container = {
-                                        'name': event['alert_id'],
-                                        'source_data_identifier': event['alert_id'],
-                                    }
-                                    container_status, container_msg, container_id = self.save_container(container)
-                                    if container_status == phantom.APP_ERROR:
-                                        self.debug_print("Failed to store: {}".format(container_msg))
-                                        self.debug_print("Failed with status: {}".format(container_status))
-                                        action_result.set_status(phantom.APP_ERROR, 'Event Notification container creation failed: {}'.format(container_msg))
-                                        return container_status
+        # make rest call
+        ret_val, response = self._make_post('/GetEventNotifications', action_result, data=request, headers=None)
+        if phantom.is_success(ret_val):
+            self.save_progress("Fetching event notifications was successful")
+            # Filter the response
+            for event_notification in response['event_notifications']:
+                if event_notification['event_action'] in self._event_notification_actions and event_notification['event']:
+                    event = event_notification['event']
+                    if event['category'] not in self._event_categories and event['sub_category'] not in self._event_subcategories:
+                        if self._event_severity_lower <= int(event['severity']) <= self._event_severity_upper:
+                            if self._store_event_notifs_in_alert_containers:
+                                # store in alert container
+                                container = {
+                                    'name': event['alert_id'],
+                                    'source_data_identifier': event['alert_id'],
+                                }
+                                container_status, container_msg, container_id = self.save_container(container)
+                                if container_status == phantom.APP_ERROR:
+                                    self.debug_print("Failed to store: {}".format(container_msg))
+                                    self.debug_print("Failed with status: {}".format(container_status))
+                                    action_result.set_status(phantom.APP_ERROR, 'Event Notification container creation failed: {}'.format(container_msg))
+                                    return container_status
 
-                                    # add notification as artifact of container
-                                    artifact = {
-                                        'data': event_notification,
-                                        'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
-                                        'container_id': container_id,
-                                        'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
-                                        'start_time': event['updated']
-                                    }
-                                else:
-                                    # store in event container
-                                    container = {
-                                        'name': event['id'],
-                                        'kill_chain': event['category'],
-                                        'description': "IronDefense {}/{} event".
-                                        format(event['category'], event['sub_category']),
-                                        'source_data_identifier': event['id'],
-                                        'data': event,
-                                    }
-                                    container_status, container_msg, container_id = self.save_container(container)
-                                    if container_status == phantom.APP_ERROR:
-                                        self.debug_print("Failed to store: {}".format(container_msg))
-                                        self.debug_print("Failed with status: {}".format(container_status))
-                                        action_result.set_status(phantom.APP_ERROR, 'Event Notification container creation failed: {}'.format(container_msg))
-                                        return container_status
+                                # add notification as artifact of container
+                                artifact = {
+                                    'data': event_notification,
+                                    'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
+                                    'container_id': container_id,
+                                    'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
+                                    'start_time': event['updated']
+                                }
+                            else:
+                                # store in event container
+                                container = {
+                                    'name': event['id'],
+                                    'kill_chain': event['category'],
+                                    'description': "IronDefense {}/{} event".
+                                    format(event['category'], event['sub_category']),
+                                    'source_data_identifier': event['id'],
+                                    'data': event,
+                                }
+                                container_status, container_msg, container_id = self.save_container(container)
+                                if container_status == phantom.APP_ERROR:
+                                    self.debug_print("Failed to store: {}".format(container_msg))
+                                    self.debug_print("Failed with status: {}".format(container_status))
+                                    action_result.set_status(phantom.APP_ERROR, 'Event Notification container creation failed: {}'.format(container_msg))
+                                    return container_status
 
-                                    # add notification as artifact of container
-                                    artifact = {
-                                        'data': event_notification,
-                                        'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
-                                        'container_id': container_id,
-                                        'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
-                                        'start_time': event['updated']
-                                    }
-                                artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
-                                if artifact_status == phantom.APP_ERROR:
-                                    self.debug_print("Failed to store: {}".format(artifact_msg))
-                                    self.debug_print("Failed with status: {}".format(artifact_status))
-                                    action_result.set_status(phantom.APP_ERROR, 'Event Notification artifact creation failed: {}'.format(artifact_msg))
-                                    return artifact_status
+                                # add notification as artifact of container
+                                artifact = {
+                                    'data': event_notification,
+                                    'name': "{} EVENT NOTIFICATION".format(event_notification['event_action'][4:].replace("_", " ")),
+                                    'container_id': container_id,
+                                    'source_data_identifier': "{}-{}".format(event['id'], event["updated"]),
+                                    'start_time': event['updated']
+                                }
+                            artifact_status, artifact_msg, artifact_id = self.save_artifact(artifact)
+                            if artifact_status == phantom.APP_ERROR:
+                                self.debug_print("Failed to store: {}".format(artifact_msg))
+                                self.debug_print("Failed with status: {}".format(artifact_status))
+                                action_result.set_status(phantom.APP_ERROR, 'Event Notification artifact creation failed: {}'.format(artifact_msg))
+                                return artifact_status
 
-                self.save_progress("Filtering event notifications was successful")
-                return action_result.set_status(phantom.APP_SUCCESS)
-            else:
-                self.debug_print(action_result.get_message())
-                self.save_progress("Fetching event notifications failed")
-                return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
+            self.save_progress("Filtering event notifications was successful")
+            return action_result.set_status(phantom.APP_SUCCESS)
+        else:
+            self.debug_print(action_result.get_message())
+            self.save_progress("Fetching event notifications failed")
+            return action_result.set_status(phantom.APP_ERROR, action_result.get_message())
 
     def _handle_irondefense_get_alerts(self, param):
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
@@ -590,54 +590,54 @@ class IronnetConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, "Retrieving alerts failed. Error: {}".format(action_result.get_message()))
 
     def _handle_irondefense_get_events(self, param):
-            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
-            # Add an action result object to self (BaseConnector) to represent the action for this param
-            action_result = self.add_action_result(ActionResult(dict()))
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict()))
 
-            # Access action parameters passed in the 'param' dictionary
-            request = {
-                'alert_id': param['alert_id']
-            }
-            # make rest call
-            ret_val, response = self._make_post('/GetEvents', action_result, data=request, headers=None)
+        # Access action parameters passed in the 'param' dictionary
+        request = {
+            'alert_id': param['alert_id']
+        }
+        # make rest call
+        ret_val, response = self._make_post('/GetEvents', action_result, data=request, headers=None)
 
-            # Add the response into the data section
-            action_result.add_data(response)
+        # Add the response into the data section
+        action_result.add_data(response)
 
-            if phantom.is_success(ret_val):
-                self.debug_print("Retrieving events was successful")
-                return action_result.set_status(phantom.APP_SUCCESS, "Retrieving events was successful")
-            else:
-                self.debug_print("Retrieving events failed. Error: {}".format(action_result.get_message()))
-                return action_result.set_status(phantom.APP_ERROR,
-                                                "Retrieving events failed. Error: {}".format(
-                                                    action_result.get_message()))
+        if phantom.is_success(ret_val):
+            self.debug_print("Retrieving events was successful")
+            return action_result.set_status(phantom.APP_SUCCESS, "Retrieving events was successful")
+        else:
+            self.debug_print("Retrieving events failed. Error: {}".format(action_result.get_message()))
+            return action_result.set_status(phantom.APP_ERROR,
+                                            "Retrieving events failed. Error: {}".format(
+                                                action_result.get_message()))
 
     def _handle_irondefense_get_event(self, param):
-            self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
-            # Add an action result object to self (BaseConnector) to represent the action for this param
-            action_result = self.add_action_result(ActionResult(dict()))
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict()))
 
-            # Access action parameters passed in the 'param' dictionary
-            request = {
-                'event_id': param['event_id']
-            }
-            # make rest call
-            ret_val, response = self._make_post('/GetEvent', action_result, data=request, headers=None)
+        # Access action parameters passed in the 'param' dictionary
+        request = {
+            'event_id': param['event_id']
+        }
+        # make rest call
+        ret_val, response = self._make_post('/GetEvent', action_result, data=request, headers=None)
 
-            # Add the response into the data section
-            action_result.add_data(response)
+        # Add the response into the data section
+        action_result.add_data(response)
 
-            if phantom.is_success(ret_val):
-                self.debug_print("Retrieving event was successful")
-                return action_result.set_status(phantom.APP_SUCCESS, "Retrieving event was successful")
-            else:
-                self.debug_print("Retrieving event failed. Error: {}".format(action_result.get_message()))
-                return action_result.set_status(phantom.APP_ERROR,
-                                                "Retrieving event failed. Error: {}".format(
-                                                    action_result.get_message()))
+        if phantom.is_success(ret_val):
+            self.debug_print("Retrieving event was successful")
+            return action_result.set_status(phantom.APP_SUCCESS, "Retrieving event was successful")
+        else:
+            self.debug_print("Retrieving event failed. Error: {}".format(action_result.get_message()))
+            return action_result.set_status(phantom.APP_ERROR,
+                                            "Retrieving event failed. Error: {}".format(
+                                                action_result.get_message()))
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
